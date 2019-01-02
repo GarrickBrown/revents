@@ -4,18 +4,18 @@ import { Segment, Item, Icon, List, Button } from 'semantic-ui-react';
 
 class EventListItem extends Component {
 	render() {
-		const { hostPhotoURL, title, hostedBy, date, venue, attendees, description } = this.props.event;
+		const { event, onOpenEvent, onDeleteEvent } = this.props;
 
 		return (
 			<Segment.Group>
 				<Segment>
 					<Item.Group>
 						<Item>
-							<Item.Image size="tiny" circular src={hostPhotoURL} />
+							<Item.Image size="tiny" circular src={event.hostPhotoURL} />
 							<Item.Content>
-								<Item.Header as="a">{title}</Item.Header>
+								<Item.Header as="a">{event.title}</Item.Header>
 								<Item.Description>
-									Hosted by <a href="#!">{hostedBy}</a>
+									Hosted by <a href="#!">{event.hostedBy}</a>
 								</Item.Description>
 							</Item.Content>
 						</Item>
@@ -23,21 +23,28 @@ class EventListItem extends Component {
 				</Segment>
 				<Segment>
 					<span>
-						<Icon name="clock" /> {date} |
-						<Icon name="marker" /> {venue}
+						<Icon name="clock" /> {event.date} |
+						<Icon name="marker" /> {event.venue}
 					</span>
 				</Segment>
 				<Segment secondary>
 					<List horizontal>
-						{attendees &&
-							attendees.map(attendee => (
+						{event.attendees &&
+							event.attendees.map(attendee => (
 								<EventListAttendee key={attendee.id} attendee={attendee} />
 							))}
 					</List>
 				</Segment>
 				<Segment clearing>
-					<span>{description}</span>
-					<Button as="a" color="teal" floated="right" content="View" />
+					<span>{event.description}</span>
+					<Button
+						as="a"
+						color="red"
+						floated="right"
+						content="Delete"
+						onClick={onDeleteEvent(event.id)}
+					/>
+					<Button as="a" color="teal" floated="right" content="View" onClick={onOpenEvent(event)} />
 				</Segment>
 			</Segment.Group>
 		);
