@@ -1,118 +1,128 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Segment, Form, Button } from 'semantic-ui-react';
+import { reduxForm, Field } from 'redux-form';
+import { Segment, Form, Button, Grid, Header } from 'semantic-ui-react';
 import cuid from 'cuid';
+import { composeValidators, combineValidators, isRequired, hasLengthGreaterThan } from 'revalidate';
+import moment from 'moment';
 import { createEvent, updateEvent } from '../eventActions';
+import TextInput from '../../../app/common/form/TextInput';
+import TextArea from '../../../app/common/form/TextArea';
+import SelectInput from '../../../app/common/form/SelectInput';
+import DateInput from '../../../app/common/form/DateInput';
+
+const category = [
+	{ key: 'drinks', text: 'Drinks', value: 'drinks' },
+	{ key: 'culture', text: 'Culture', value: 'culture' },
+	{ key: 'film', text: 'Film', value: 'film' },
+	{ key: 'food', text: 'Food', value: 'food' },
+	{ key: 'music', text: 'Music', value: 'music' },
+	{ key: 'travel', text: 'Travel', value: 'travel' },
+];
+
+const validate = combineValidators({
+	title: isRequired({ message: 'The event title is required' }),
+	category: isRequired({ message: 'Please select a category' }),
+	description: composeValidators(
+		isRequired({ message: 'Please provide a description' }),
+		hasLengthGreaterThan(4)({ message: 'Description needs to be at least 5 characters' }),
+	)(),
+	city: isRequired('City'),
+	venue: isRequired('Venue'),
+	date: isRequired('Date'),
+});
 
 class EventForm extends Component {
-	state = {
-		event: Object.assign({}, this.props.event),
-	};
-
-	handleFormChange = e => {
-		const newEvent = this.state.event;
-		newEvent[e.target.name] = e.target.value;
-		this.setState({
-			event: newEvent,
-		});
-	};
-
-	handleFormSubmit = e => {
-		e.preventDefault();
-		if (this.state.event.id) {
-			this.props.updateEvent(this.state.event);
+	handleFormSubmit = values => {
+		values.date = moment(values.date).format();
+		if (this.props.initialValues.id) {
+			this.props.updateEvent(values);
 			this.props.history.goBack();
 		} else {
 			const newEvent = {
-				...this.state.event,
+				...values,
 				id: cuid(),
 				hostPhotoURL: '/assets/user.png',
+				hostedBy: 'User Name',
 			};
 			this.props.createEvent(newEvent);
 			this.props.history.push('/events');
 		}
 	};
 
-	render() {
-		const { title, date, city, venue, hostedBy } = this.state.event;
+	handleCancel = () => {
+		if (this.props.history.location.pathname === '/createEvent') {
+			this.props.history.push('/events');
+		} else {
+			this.props.history.goBack();
+		}
+	};
 
+	render() {
+		const { invalid, submitting, pristine } = this.props;
 		return (
-			<Segment>
-				<Form onSubmit={this.handleFormSubmit}>
-					<Form.Field>
-						<label>Event Title</label>
-						<input
-							name="title"
-							value={title}
-							onChange={this.handleFormChange}
-							placeholder="Event Title"
-						/>
-					</Form.Field>
-					<Form.Field>
-						<label>Event Date</label>
-						<input
-							name="date"
-							value={date}
-							onChange={this.handleFormChange}
-							type="date"
-							placeholder="Event Date"
-						/>
-					</Form.Field>
-					<Form.Field>
-						<label>City</label>
-						<input
-							name="city"
-							value={city}
-							onChange={this.handleFormChange}
-							placeholder="City event is taking place"
-						/>
-					</Form.Field>
-					<Form.Field>
-						<label>Venue</label>
-						<input
-							name="venue"
-							value={venue}
-							onChange={this.handleFormChange}
-							placeholder="Enter the Venue of the event"
-						/>
-					</Form.Field>
-					<Form.Field>
-						<label>Hosted By</label>
-						<input
-							name="hostedBy"
-							value={hostedBy}
-							onChange={this.handleFormChange}
-							placeholder="Enter the name of person hosting"
-						/>
-					</Form.Field>
-					<Button positive type="submit">
-						Submit
-					</Button>
-					<Button type="button" onClick={this.props.history.goBack}>
-						Cancel
-					</Button>
-				</Form>
-			</Segment>
+			<Grid>
+				<Grid.Column width={10}>
+					<Segment>
+						<Header sub color="teal" content="Event Details" />
+						<Form onSubmit={this.props.handleSubmit(this.handleFormSubmit)}>
+							<Field
+								name="title"
+								type="text"
+								component={TextInput}
+								placeholder="Give your event a name"
+							/>
+							<Field
+								name="category"
+								type="text"
+								component={SelectInput}
+								placeholder="What is your event about"
+								options={category}
+								multiple={false}
+							/>
+							<Field
+								name="description"
+								type="text"
+								rows={3}
+								component={TextArea}
+								placeholder="Tell us about your event"
+							/>
+							<Header sub color="teal" content="Event Location Details" />
+							<Field name="city" type="text" component={TextInput} placeholder="Event city" />
+							<Field name="venue" type="text" component={TextInput} placeholder="Event venue" />
+							<Field
+								name="date"
+								type="text"
+								component={DateInput}
+								dateFormat="YYYY-MM-DD HH:mm"
+								timeFormat="HH:mm"
+								showTimeSelect
+								placeholder="Date and time of event"
+							/>
+							<Button disabled={invalid || submitting || pristine} positive type="submit">
+								Submit
+							</Button>
+							<Button type="button" onClick={this.handleCancel}>
+								Cancel
+							</Button>
+						</Form>
+					</Segment>
+				</Grid.Column>
+			</Grid>
 		);
 	}
 }
 
 const mapState = (state, ownProps) => {
 	const eventId = ownProps.match.params.id;
-	let event = {
-		title: '',
-		date: '',
-		city: '',
-		venue: '',
-		hostedBy: '',
-	};
+	let event = {};
 
 	if (eventId && state.events.length > 0) {
 		event = state.events.filter(event => event.id === eventId)[0];
 	}
 
 	return {
-		event,
+		initialValues: event,
 	};
 };
 
@@ -124,4 +134,4 @@ const actions = {
 export default connect(
 	mapState,
 	actions,
-)(EventForm);
+)(reduxForm({ form: 'eventForm', enableReinitialize: true, validate })(EventForm));
