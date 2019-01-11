@@ -8,6 +8,7 @@ import { composeValidators, combineValidators, isRequired, hasLengthGreaterThan 
 import moment from 'moment';
 import Script from 'react-load-script';
 import { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
+import LoadingComponent from '../../../app/layout/LoadingComponent';
 import { createEvent, updateEvent } from '../eventActions';
 import TextInput from '../../../app/common/form/TextInput';
 import TextArea from '../../../app/common/form/TextArea';
@@ -94,7 +95,8 @@ class EventForm extends Component {
 	handleScriptLoad = () => this.setState({ scriptLoaded: true });
 
 	render() {
-		const { invalid, submitting, pristine } = this.props;
+		const { invalid, submitting, pristine, loading } = this.props;
+		if (loading) return <LoadingComponent inverted={true} />;
 		return (
 			<Grid>
 				<Script
@@ -182,6 +184,7 @@ const mapState = (state, ownProps) => {
 
 	return {
 		initialValues: event,
+		loading: state.async.loading,
 	};
 };
 

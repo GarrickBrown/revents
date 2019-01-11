@@ -1,12 +1,14 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Grid } from 'semantic-ui-react';
+import LoadingComponent from '../../../app/layout/LoadingComponent';
 import EventDetailedHeader from './EventDetailedHeader';
 import EventDetailedInfo from './EventDetailedInfo';
 import EventDetailedChat from './EventDetailedChat';
 import EventDetailedSidebar from './EventDetailedSidebar';
 
-const EventDetailedPage = ({ event }) => {
+const EventDetailedPage = ({ event, loading }) => {
+	if (loading) return <LoadingComponent inverted={true} />;
 	return (
 		<Grid>
 			<Grid.Column width={10}>
@@ -30,6 +32,7 @@ const mapState = (state, ownProps) => {
 	}
 	return {
 		event,
+		loading: state.async.loading,
 	};
 };
 
