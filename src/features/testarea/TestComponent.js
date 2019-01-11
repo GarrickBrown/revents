@@ -4,7 +4,10 @@ import { Button, Icon } from 'semantic-ui-react';
 import Script from 'react-load-script';
 import PlacesAutocomplete, { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
 import GoogleMapReact from 'google-map-react';
-import { incrementCounter, decrementCounter } from './testActions';
+import {
+	/* incrementCounter, decrementCounter */ incrementAsync,
+	decrementAsync,
+} from './testActions';
 import { openModal } from '../modals/modalActions';
 
 const Marker = () => <Icon name="marker" size="big" color="red" />;
@@ -41,7 +44,7 @@ class TestComponent extends Component {
 			value: this.state.address,
 			onChange: this.onChange,
 		};
-		const { data, incrementCounter, decrementCounter, openModal } = this.props;
+		const { data, incrementAsync, decrementAsync, openModal, loading } = this.props;
 		return (
 			<div>
 				<Script
@@ -50,8 +53,8 @@ class TestComponent extends Component {
 				/>
 				<h1>Test Component</h1>
 				<h3>The answer is: {data}</h3>
-				<Button onClick={incrementCounter} color="green" content="Increment" />
-				<Button onClick={decrementCounter} color="red" content="Decrement" />
+				<Button loading={loading} onClick={incrementAsync} color="green" content="Increment" />
+				<Button loading={loading} onClick={decrementAsync} color="red" content="Decrement" />
 				<Button
 					onClick={() => openModal('TestModal', { data: 43 })}
 					color="teal"
@@ -81,11 +84,12 @@ class TestComponent extends Component {
 
 const mapState = state => ({
 	data: state.test.data,
+	loading: state.test.loading,
 });
 
 const actions = {
-	incrementCounter,
-	decrementCounter,
+	incrementAsync,
+	decrementAsync,
 	openModal,
 };
 
