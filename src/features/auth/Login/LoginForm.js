@@ -1,11 +1,12 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Form, Segment, Button, Label } from 'semantic-ui-react';
+import { Form, Segment, Button, Label, Divider } from 'semantic-ui-react';
 import { Field, reduxForm } from 'redux-form';
 import TextInput from '../../../app/common/form/TextInput';
-import { login } from '../../../features/auth/authActions';
+import { login, socialLogin } from '../../../features/auth/authActions';
+import SocialLogin from '../SocialLogin/SocialLogin';
 
-const LoginForm = ({ login, handleSubmit, error }) => {
+const LoginForm = ({ login, socialLogin, handleSubmit, error }) => {
 	return (
 		<Form size="large" onSubmit={handleSubmit(login)}>
 			<Segment>
@@ -19,6 +20,8 @@ const LoginForm = ({ login, handleSubmit, error }) => {
 				<Button fluid size="large" color="teal">
 					Login
 				</Button>
+				<Divider horizontal>Or</Divider>
+				<SocialLogin socialLogin={socialLogin} />
 			</Segment>
 		</Form>
 	);
@@ -26,6 +29,7 @@ const LoginForm = ({ login, handleSubmit, error }) => {
 
 const actions = {
 	login,
+	socialLogin,
 };
 
 export default connect(
