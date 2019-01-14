@@ -13,17 +13,19 @@ import * as serviceWorker from './serviceWorker';
 
 const store = configureStore();
 
-ReactDOM.render(
-	<Provider store={store}>
-		<Router>
-			<ScrollToTop>
-				<ReduxToastr position="bottom-right" transitionIn="fadeIn" transitionOut="fadeOut" />
-				<App />
-			</ScrollToTop>
-		</Router>
-	</Provider>,
-	document.getElementById('root'),
-);
+store.firebaseAuthIsReady.then(() => {
+	ReactDOM.render(
+		<Provider store={store}>
+			<Router>
+				<ScrollToTop>
+					<ReduxToastr position="bottom-right" transitionIn="fadeIn" transitionOut="fadeOut" />
+					<App />
+				</ScrollToTop>
+			</Router>
+		</Provider>,
+		document.getElementById('root'),
+	);
+});
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
