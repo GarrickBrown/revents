@@ -22,7 +22,7 @@ const RegisterForm = ({ handleSubmit, registerUser, error, invalid, submitting }
 					<Field name="email" type="text" component={TextInput} placeholder="Email" />
 					<Field name="password" type="password" component={TextInput} placeholder="Password" />
 					{error && (
-						<Label basic color="red">
+						<Label basic color="red" pointing>
 							{error}
 						</Label>
 					)}

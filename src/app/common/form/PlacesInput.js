@@ -40,7 +40,7 @@ class PlacesInput extends Component {
 					/>
 				)}
 				{touched && error && (
-					<Label basic color="red">
+					<Label basic color="red" pointing>
 						{error}
 					</Label>
 				)}

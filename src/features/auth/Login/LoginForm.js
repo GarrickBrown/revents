@@ -13,7 +13,7 @@ const LoginForm = ({ login, socialLogin, handleSubmit, error }) => {
 				<Field name="email" component={TextInput} type="text" placeholder="Email Address" />
 				<Field name="password" component={TextInput} type="password" placeholder="password" />
 				{error && (
-					<Label basic color="red">
+					<Label basic color="red" pointing>
 						{error}
 					</Label>
 				)}

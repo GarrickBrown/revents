@@ -12,7 +12,7 @@ const SelectInput = ({ input, type, placeholder, multiple, options, meta: { touc
 				multiple={multiple}
 			/>
 			{touched && error && (
-				<Label basic color="red">
+				<Label basic color="red" pointing>
 					{error}
 				</Label>
 			)}
