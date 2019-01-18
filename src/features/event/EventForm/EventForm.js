@@ -1,15 +1,13 @@
 /* global google */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { withFirestore } from 'react-redux-firebase';
 import { reduxForm, Field } from 'redux-form';
 import { Segment, Form, Button, Grid, Header } from 'semantic-ui-react';
-import cuid from 'cuid';
 import { composeValidators, combineValidators, isRequired, hasLengthGreaterThan } from 'revalidate';
-import moment from 'moment';
 import Script from 'react-load-script';
 import { geocodeByAddress, getLatLng } from 'react-places-autocomplete';
-import LoadingComponent from '../../../app/layout/LoadingComponent';
-import { createEvent, updateEvent } from '../eventActions';
+import { createEvent, updateEvent, cancelToggle } from '../eventActions';
 import TextInput from '../../../app/common/form/TextInput';
 import TextArea from '../../../app/common/form/TextArea';
 import SelectInput from '../../../app/common/form/SelectInput';
@@ -44,6 +42,16 @@ class EventForm extends Component {
 		scriptLoaded: false,
 	};
 
+	componentDidMount = async () => {
+		const { firestore, match } = this.props;
+		await firestore.setListener(`events/${match.params.id}`);
+	};
+
+	componentWillUnmount = async () => {
+		const { firestore, match } = this.props;
+		await firestore.unsetListener(`events/${match.params.id}`);
+	};
+
 	handleCitySelect = async selectedCity => {
 		const geocode = await geocodeByAddress(selectedCity);
 		const latLng = await getLatLng(geocode[0]);
@@ -67,19 +75,15 @@ class EventForm extends Component {
 	};
 
 	handleFormSubmit = values => {
-		values.date = moment(values.date).format();
 		values.venueLatLng = this.state.venueLatLng;
 		if (this.props.initialValues.id) {
+			if (Object.keys(values.venueLatLng).length === 0) {
+				values.venueLatLng = this.props.event.venueLatLng;
+			}
 			this.props.updateEvent(values);
 			this.props.history.goBack();
 		} else {
-			const newEvent = {
-				...values,
-				id: cuid(),
-				hostPhotoURL: '/assets/user.png',
-				hostedBy: 'User Name',
-			};
-			this.props.createEvent(newEvent);
+			this.props.createEvent(values);
 			this.props.history.push('/events');
 		}
 	};
@@ -95,8 +99,7 @@ class EventForm extends Component {
 	handleScriptLoad = () => this.setState({ scriptLoaded: true });
 
 	render() {
-		const { invalid, submitting, pristine, loading } = this.props;
-		if (loading) return <LoadingComponent inverted={true} />;
+		const { invalid, submitting, pristine, event, cancelToggle } = this.props;
 		return (
 			<Grid>
 				<Script
@@ -166,6 +169,13 @@ class EventForm extends Component {
 							<Button type="button" onClick={this.handleCancel}>
 								Cancel
 							</Button>
+							<Button
+								onClick={() => cancelToggle(!event.cancelled, event.id)}
+								type="button"
+								color={event.cancelled ? 'green' : 'red'}
+								floated="right"
+								content={event.cancelled ? 'Reactivate Event' : 'Cancel Event'}
+							/>
 						</Form>
 					</Segment>
 				</Grid.Column>
@@ -175,25 +185,29 @@ class EventForm extends Component {
 }
 
 const mapState = (state, ownProps) => {
-	const eventId = ownProps.match.params.id;
 	let event = {};
-
-	if (eventId && state.events.length > 0) {
-		event = state.events.filter(event => event.id === eventId)[0];
+	let eventArray = [];
+	if (state.firestore.ordered.events) {
+		eventArray = state.firestore.ordered.events.filter(
+			event => event.id === ownProps.match.params.id,
+		);
+		event = eventArray[0];
 	}
-
 	return {
 		initialValues: event,
-		loading: state.async.loading,
+		event,
 	};
 };
 
 const actions = {
 	createEvent,
 	updateEvent,
+	cancelToggle,
 };
 
-export default connect(
-	mapState,
-	actions,
-)(reduxForm({ form: 'eventForm', enableReinitialize: true, validate })(EventForm));
+export default withFirestore(
+	connect(
+		mapState,
+		actions,
+	)(reduxForm({ form: 'eventForm', enableReinitialize: true, validate })(EventForm)),
+);
