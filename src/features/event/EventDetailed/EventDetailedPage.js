@@ -2,30 +2,39 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withFirestore } from 'react-redux-firebase';
 import { Grid } from 'semantic-ui-react';
-import { toastr } from 'react-redux-toastr';
 import EventDetailedHeader from './EventDetailedHeader';
 import EventDetailedInfo from './EventDetailedInfo';
 import EventDetailedChat from './EventDetailedChat';
 import EventDetailedSidebar from './EventDetailedSidebar';
 import { objectToArray } from '../../../app/common/util/helpers';
+import { goingToEvent, cancelGoingToEvent } from '../../user/userActions';
 
 class EventDetailedPage extends Component {
 	componentDidMount = async () => {
-		const { firestore, match, history } = this.props;
-		let event = await firestore.get(`events/${match.params.id}`);
-		if (!event.exists) {
-			history.push('/events');
-			toastr.error('Sorry', 'Event not found');
-		}
+		const { firestore, match } = this.props;
+		await firestore.setListener(`events/${match.params.id}`);
+	};
+
+	componentWillUnmount = async () => {
+		const { firestore, match } = this.props;
+		await firestore.unsetListener(`events/${match.params.id}`);
 	};
 
 	render() {
-		const { event } = this.props;
+		const { event, auth, goingToEvent, cancelGoingToEvent } = this.props;
 		const attendees = event && event.attendees && objectToArray(event.attendees);
+		const isHost = event.hostUid === auth.uid;
+		const isGoing = attendees && attendees.some(attendee => attendee.id === auth.uid);
 		return (
 			<Grid>
 				<Grid.Column width={10}>
-					<EventDetailedHeader event={event} />
+					<EventDetailedHeader
+						event={event}
+						isHost={isHost}
+						isGoing={isGoing}
+						goingToEvent={goingToEvent}
+						cancelGoingToEvent={cancelGoingToEvent}
+					/>
 					<EventDetailedInfo event={event} />
 					<EventDetailedChat />
 				</Grid.Column>
@@ -48,7 +57,18 @@ const mapState = (state, ownProps) => {
 	}
 	return {
 		event,
+		auth: state.firebase.auth,
 	};
 };
 
-export default withFirestore(connect(mapState)(EventDetailedPage));
+const actions = {
+	goingToEvent,
+	cancelGoingToEvent,
+};
+
+export default withFirestore(
+	connect(
+		mapState,
+		actions,
+	)(EventDetailedPage),
+);

@@ -33,7 +33,7 @@ const EventDetailedSidebar = ({ attendees }) => {
 										verticalAlign="middle"
 									>
 										<Item.Header as="h3">
-											<a href="#!">{attendee.name}</a>
+											<a href="#!">{attendee.displayName}</a>
 										</Item.Header>
 									</Item.Content>
 								</Item>

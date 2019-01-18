@@ -169,13 +169,15 @@ class EventForm extends Component {
 							<Button type="button" onClick={this.handleCancel}>
 								Cancel
 							</Button>
-							<Button
-								onClick={() => cancelToggle(!event.cancelled, event.id)}
-								type="button"
-								color={event.cancelled ? 'green' : 'red'}
-								floated="right"
-								content={event.cancelled ? 'Reactivate Event' : 'Cancel Event'}
-							/>
+							{Object.keys(event).length !== 0 && (
+								<Button
+									onClick={() => cancelToggle(!event.cancelled, event.id)}
+									type="button"
+									color={event.cancelled ? 'green' : 'red'}
+									floated="right"
+									content={event.cancelled ? 'Reactivate Event' : 'Cancel Event'}
+								/>
+							)}
 						</Form>
 					</Segment>
 				</Grid.Column>
@@ -187,7 +189,7 @@ class EventForm extends Component {
 const mapState = (state, ownProps) => {
 	let event = {};
 	let eventArray = [];
-	if (state.firestore.ordered.events) {
+	if (state.firestore.ordered.events && ownProps.history.location.pathname !== '/createEvent') {
 		eventArray = state.firestore.ordered.events.filter(
 			event => event.id === ownProps.match.params.id,
 		);
