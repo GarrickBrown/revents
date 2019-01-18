@@ -19,7 +19,7 @@ const DateInput = ({
 			<DatePicker
 				{...rest}
 				placeholderText={placeholder}
-				selected={value ? moment(value).toDate() : null}
+				selected={value ? moment(value) : null}
 				onChange={onChange}
 				onBlur={() => onBlur()}
 				{...restInput}

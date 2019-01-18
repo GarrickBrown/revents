@@ -41,9 +41,7 @@ class BasicPage extends Component {
 						showYearDropdown={true}
 						showMonthDropdown={true}
 						dropdownMode="select"
-						maxDate={moment()
-							.subtract(18, 'years')
-							.toDate()}
+						maxDate={moment().subtract(18, 'years')}
 					/>
 					<Field
 						name="city"
