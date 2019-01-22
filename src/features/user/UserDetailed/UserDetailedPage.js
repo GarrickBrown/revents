@@ -9,7 +9,7 @@ import UserDetailedPhotos from './UserDetailedPhotos';
 import UserDetailedEvents from './UserDetailedEvents';
 import UserDetailedSidebar from './UserDetailedSidebar';
 import { userDetailedQuery } from '../userQueries';
-import { getUserEvents } from '../userActions';
+import { getUserEvents, followUser, unfollowUser } from '../userActions';
 import LoadingComponent from '../../../app/layout/LoadingComponent';
 
 class UserDetailedPage extends Component {
@@ -22,8 +22,20 @@ class UserDetailedPage extends Component {
 	};
 
 	render() {
-		const { profile, photos, auth, match, requesting, events, eventsLoading } = this.props;
+		const {
+			profile,
+			photos,
+			auth,
+			match,
+			requesting,
+			events,
+			eventsLoading,
+			followUser,
+			unfollowUser,
+			following,
+		} = this.props;
 		const isCurrentUser = auth.uid === match.params.id;
+		const isFollowing = !isEmpty(following);
 		const loading = Object.values(requesting).some(request => request === true);
 		if (loading) return <LoadingComponent inverted={true} />;
 		return (
@@ -43,7 +55,13 @@ class UserDetailedPage extends Component {
 				</Grid.Column>
 
 				<Grid.Column width={4}>
-					<UserDetailedSidebar isCurrentUser={isCurrentUser} />
+					<UserDetailedSidebar
+						isCurrentUser={isCurrentUser}
+						profile={profile}
+						followUser={followUser}
+						unfollowUser={unfollowUser}
+						isFollowing={isFollowing}
+					/>
 				</Grid.Column>
 			</Grid>
 		);
@@ -69,11 +87,14 @@ const mapState = (state, ownProps) => {
 		auth: state.firebase.auth,
 		photos: state.firestore.ordered.photos,
 		requesting: state.firestore.status.requesting,
+		following: state.firestore.ordered.following,
 	};
 };
 
 const actions = {
 	getUserEvents,
+	followUser,
+	unfollowUser,
 };
 
 export default compose(
@@ -81,5 +102,5 @@ export default compose(
 		mapState,
 		actions,
 	),
-	firestoreConnect((auth, userUid) => userDetailedQuery(auth, userUid)),
+	firestoreConnect(props => userDetailedQuery(props)),
 )(UserDetailedPage);
