@@ -7,6 +7,7 @@ import GoogleMapReact from 'google-map-react';
 import {
 	/* incrementCounter, decrementCounter */ incrementAsync,
 	decrementAsync,
+	testPermission,
 } from './testActions';
 import { openModal } from '../modals/modalActions';
 
@@ -44,7 +45,7 @@ class TestComponent extends Component {
 			value: this.state.address,
 			onChange: this.onChange,
 		};
-		const { data, incrementAsync, decrementAsync, openModal, loading } = this.props;
+		const { data, incrementAsync, decrementAsync, openModal, loading, testPermission } = this.props;
 		return (
 			<div>
 				<Script
@@ -60,6 +61,7 @@ class TestComponent extends Component {
 					color="teal"
 					content="Open Modal"
 				/>
+				<Button onClick={testPermission} color="facebook" content="Test Permission" />
 				<br />
 				<br />
 				<form onSubmit={this.handleFormSubmit}>
@@ -91,6 +93,7 @@ const actions = {
 	incrementAsync,
 	decrementAsync,
 	openModal,
+	testPermission,
 };
 
 export default connect(
