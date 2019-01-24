@@ -5,6 +5,7 @@ import {
 	COUNTER_ACTION_FINISHED,
 } from './testConstants';
 import firebase from '../../app/config/firebase';
+import { toastr } from 'react-redux-toastr';
 
 export const incrementCounter = () => {
 	return {
@@ -61,5 +62,6 @@ export const testPermission = () => async (dispatch, getState) => {
 		});
 	} catch (error) {
 		console.log(error);
+		toastr.error('Oops', 'Something went wrong');
 	}
 };

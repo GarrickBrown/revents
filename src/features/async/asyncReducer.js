@@ -22,7 +22,7 @@ export const asyncActionFinish = state => {
 export const asyncActionError = state => {
 	return {
 		...state,
-		loading: true,
+		loading: false,
 	};
 };
 
