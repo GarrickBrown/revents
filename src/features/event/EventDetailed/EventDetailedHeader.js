@@ -1,5 +1,5 @@
 import React from 'react';
-import { Segment, Image, Item, Header, Button } from 'semantic-ui-react';
+import { Segment, Image, Item, Header, Button, Label } from 'semantic-ui-react';
 import format from 'date-fns/format';
 import { Link } from 'react-router-dom';
 
@@ -58,18 +58,21 @@ const EventDetailedHeader = ({
 				<Segment attached="bottom">
 					{!isHost && (
 						<div>
-							{isGoing && (
+							{isGoing && !event.cancelled && (
 								<Button onClick={() => cancelGoingToEvent(event)}>Cancel My Place</Button>
 							)}
-							{!isGoing && authenticated && (
+							{!isGoing && authenticated && !event.cancelled && (
 								<Button loading={loading} onClick={() => goingToEvent(event)} color="teal">
 									Join This Event
 								</Button>
 							)}
-							{!authenticated && (
+							{!authenticated && !event.cancelled && (
 								<Button loading={loading} onClick={() => openModal('UnauthModal')} color="teal">
 									Join This Event
 								</Button>
+							)}
+							{event.cancelled && (
+								<Label size="large" color="red" content="This event has been cancelled" />
 							)}
 						</div>
 					)}
